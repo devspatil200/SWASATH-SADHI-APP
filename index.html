@@ -1,0 +1,737 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DevFit Coach Pro - Devidas Patil</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="theme-color" content="#0f172a">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); 
+      color: #f8fafc; 
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    .screen { display: none; animation: fadeIn 0.4s ease; padding-bottom: 80px; }
+    .screen.active { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    /* Navigation */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(15, 23, 42, 0.98);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(51, 65, 85, 0.5);
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      z-index: 1000;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+    }
+    .nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5px 20px;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.3s;
+      border-radius: 12px;
+    }
+    .nav-item.active { color: #10b981; background: rgba(16, 185, 129, 0.1); }
+    .nav-item i { font-size: 20px; margin-bottom: 2px; }    .nav-item span { font-size: 11px; font-weight: 600; }
+    
+    /* Cards */
+    .card {
+      background: rgba(30, 41, 59, 0.9);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .stat-card {
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 78, 59, 0.2));
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    
+    /* Buttons */
+    .btn {
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 15px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn:active { transform: scale(0.96); }
+    .btn-primary { background: linear-gradient(135deg, #10b981, #059669); color: white; width: 100%; }
+    .btn-secondary { background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: white; }
+    .btn-outline { background: transparent; border: 2px solid #3b82f6; color: #3b82f6; }
+    
+    /* Inputs */
+    .input-field {
+      width: 100%;
+      padding: 14px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 2px solid #334155;
+      border-radius: 12px;
+      color: white;
+      font-size: 15px;
+      margin-bottom: 12px;
+      transition: all 0.3s;
+    }
+    .input-field:focus {      border-color: #10b981;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+    
+    /* Client Card */
+    .client-card {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1));
+      border-left: 4px solid #3b82f6;
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .client-card:hover {
+      transform: translateX(5px);
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Progress Bar */
+    .progress-bar {
+      background: rgba(51, 65, 85, 0.8);
+      height: 8px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+    .progress-fill {
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      height: 100%;
+      transition: width 0.5s ease;
+    }
+    
+    /* Floating Action Button */
+    .fab {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
+      cursor: pointer;      z-index: 999;
+      transition: all 0.3s;
+    }
+    .fab:hover { transform: scale(1.1) rotate(90deg); }
+    
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-success { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+    .badge-warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+    .badge-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+    
+    /* Animations */
+    @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .animate-slide-up { animation: slideUp 0.4s ease; }
+    
+    /* Chart Container */
+    .chart-container { position: relative; height: 250px; margin: 20px 0; }
+    
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.8);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: #1e293b;
+      border-radius: 20px;
+      padding: 24px;
+      max-width: 500px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      animation: slideUp 0.3s ease;
+    }
+    
+    /* Header */
+    .header {
+      background: rgba(15, 23, 42, 0.98);      padding: 16px 20px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+      backdrop-filter: blur(10px);
+    }
+    .header-title { font-size: 20px; font-weight: 700; color: #10b981; }
+    
+    /* Workout Item */
+    .workout-item {
+      background: rgba(30, 41, 59, 0.6);
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      border-left: 3px solid #10b981;
+    }
+    
+    /* Delete Button */
+    .delete-btn {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+      border: 1px solid #ef4444;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s;
+    }
+    .delete-btn:hover { background: rgba(239, 68, 68, 0.4); }
+  </style>
+</head>
+<body>
+
+<!-- ==================== AUTH SCREEN ==================== -->
+<div id="auth-screen" class="screen active">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="card w-full max-w-md animate-slide-up">
+      <div class="text-center mb-6">
+        <div class="text-6xl mb-4">🏋️</div>
+        <h1 class="text-3xl font-bold text-emerald-400 mb-2">DevFit Coach Pro</h1>
+        <p class="text-gray-400">Devidas Patil - Advanced Fitness Platform</p>
+      </div>
+      
+      <div class="space-y-4">
+        <input type="text" id="auth-name" class="input-field" placeholder="👤 Full Name">
+        <input type="email" id="auth-email" class="input-field" placeholder="📧 Email Address">
+        <select id="auth-role" class="input-field">
+          <option value="coach">👨‍🏫 I am a Coach</option>
+          <option value="client">💪 I am a Client</option>        </select>
+        
+        <button onclick="app.auth.login()" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt"></i> Get Started
+        </button>
+      </div>
+      
+      <p class="text-xs text-gray-500 text-center mt-4">
+        No password required. Instant access!
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== COACH DASHBOARD ==================== -->
+<div id="coach-dashboard" class="screen">
+  <div class="header">
+    <div class="flex justify-between items-center">
+      <div class="header-title">👨‍🏫 Coach Dashboard</div>
+      <button onclick="app.auth.logout()" class="text-red-400 text-sm">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </button>
+    </div>
+  </div>
+  
+  <div class="p-4">
+    <!-- Stats -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <div class="card stat-card text-center">
+        <div class="text-3xl font-bold text-emerald-400" id="coach-total-clients">0</div>
+        <div class="text-sm text-gray-400">Total Clients</div>
+      </div>
+      <div class="card stat-card text-center">
+        <div class="text-3xl font-bold text-blue-400" id="coach-active-today">0</div>
+        <div class="text-sm text-gray-400">Active Today</div>
+      </div>
+    </div>
+    
+    <!-- Clients List -->
+    <div class="card">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-lg font-bold">👥 My Clients</h2>
+        <span class="badge badge-success" id="clients-count">0</span>
+      </div>
+      
+      <div id="clients-list">
+        <!-- Clients will be rendered here -->
+      </div>
+    </div>
+  </div>  
+  <!-- FAB -->
+  <div class="fab" onclick="app.clients.showAddModal()">
+    <i class="fas fa-plus"></i>
+  </div>
+  
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="app.navigation.show('coach-dashboard')">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" onclick="app.navigation.show('coach-analytics')">
+      <i class="fas fa-chart-line"></i>
+      <span>Analytics</span>
+    </div>
+    <div class="nav-item" onclick="app.auth.logout()">
+      <i class="fas fa-sign-out-alt"></i>
+      <span>Logout</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== CLIENT DASHBOARD ==================== -->
+<div id="client-dashboard" class="screen">
+  <div class="header">
+    <div class="flex justify-between items-center">
+      <div class="header-title">💪 My Fitness</div>
+      <button onclick="app.auth.logout()" class="text-red-400 text-sm">
+        <i class="fas fa-sign-out-alt"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="p-4">
+    <!-- Profile Card -->
+    <div class="card stat-card">
+      <div class="flex justify-between items-center mb-4">
+        <div>
+          <h2 class="text-xl font-bold" id="client-name">Client</h2>
+          <p class="text-sm text-gray-400" id="client-goal">Goal: Weight Loss</p>
+        </div>
+        <div class="text-right">
+          <div class="text-3xl font-bold text-emerald-400" id="client-bmi">0</div>
+          <div class="text-xs text-gray-400">BMI</div>
+        </div>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-center">
+        <div>
+          <div class="text-sm text-gray-400">Weight</div>          <div class="font-bold" id="client-weight">0 kg</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-400">Height</div>
+          <div class="font-bold" id="client-height">0 cm</div>
+        </div>
+        <div>
+          <div class="text-sm text-gray-400">Age</div>
+          <div class="font-bold" id="client-age">0</div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 gap-4 mb-6">
+      <button onclick="app.navigation.show('client-workout')" class="card text-center hover:bg-slate-700 transition">
+        <div class="text-3xl mb-2">🏋️</div>
+        <div class="font-semibold">Workout</div>
+      </button>
+      <button onclick="app.navigation.show('client-diet')" class="card text-center hover:bg-slate-700 transition">
+        <div class="text-3xl mb-2">🥗</div>
+        <div class="font-semibold">Diet Plan</div>
+      </button>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="card">
+      <h3 class="font-bold mb-4">📊 Recent Workouts</h3>
+      <div id="client-recent-workouts">
+        <p class="text-gray-400 text-center py-4">No workouts yet</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Bottom Nav -->
+  <div class="bottom-nav">
+    <div class="nav-item active" onclick="app.navigation.show('client-dashboard')">
+      <i class="fas fa-home"></i>
+      <span>Home</span>
+    </div>
+    <div class="nav-item" onclick="app.navigation.show('client-workout')">
+      <i class="fas fa-dumbbell"></i>
+      <span>Workout</span>
+    </div>
+    <div class="nav-item" onclick="app.navigation.show('client-diet')">
+      <i class="fas fa-utensils"></i>
+      <span>Diet</span>
+    </div>
+    <div class="nav-item" onclick="app.navigation.show('client-progress')">
+      <i class="fas fa-chart-area"></i>      <span>Progress</span>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== ADD CLIENT MODAL ==================== -->
+<div id="add-client-modal" class="modal">
+  <div class="modal-content">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">➕ Add New Client</h2>
+      <button onclick="app.clients.hideAddModal()" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+    
+    <form onsubmit="event.preventDefault(); app.clients.add();">
+      <input type="text" id="new-client-name" class="input-field" placeholder="Full Name" required>
+      <input type="email" id="new-client-email" class="input-field" placeholder="Email" required>
+      <input type="number" id="new-client-age" class="input-field" placeholder="Age" required>
+      <div class="grid grid-cols-2 gap-2">
+        <input type="number" id="new-client-weight" class="input-field" placeholder="Weight (kg)" required>
+        <input type="number" id="new-client-height" class="input-field" placeholder="Height (cm)" required>
+      </div>
+      <select id="new-client-goal" class="input-field">
+        <option value="weight_loss">Weight Loss</option>
+        <option value="muscle_gain">Muscle Gain</option>
+        <option value="maintenance">Maintenance</option>
+      </select>
+      <input type="text" id="new-client-issues" class="input-field" placeholder="Health Issues (Optional)">
+      
+      <button type="submit" class="btn btn-primary mt-4">
+        <i class="fas fa-save"></i> Add Client
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- ==================== CLIENT DETAILS MODAL ==================== -->
+<div id="client-details-modal" class="modal">
+  <div class="modal-content">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">👤 Client Details</h2>
+      <button onclick="app.clients.hideDetailsModal()" class="text-gray-400 hover:text-white">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+    
+    <div id="client-details-content">
+      <!-- Content will be rendered here -->
+    </div>    
+    <div class="mt-6 flex gap-3">
+      <button onclick="app.clients.deleteCurrent()" class="btn btn-danger flex-1">
+        <i class="fas fa-trash"></i> Delete Client
+      </button>
+      <button onclick="app.clients.hideDetailsModal()" class="btn btn-outline flex-1">
+        Close
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATABASE ====================
+const db = {
+  get: (key) => JSON.parse(localStorage.getItem('devfit_' + key) || 'null'),
+  set: (key, value) => localStorage.setItem('devfit_' + key, JSON.stringify(value)),
+  getArray: (key) => JSON.parse(localStorage.getItem('devfit_' + key) || '[]'),
+  push: (key, item) => {
+    const arr = db.getArray(key);
+    arr.push(item);
+    db.set(key, arr);
+    return arr;
+  },
+  update: (key, id, data) => {
+    const arr = db.getArray(key);
+    const idx = arr.findIndex(x => x.id === id);
+    if (idx !== -1) {
+      arr[idx] = { ...arr[idx], ...data };
+      db.set(key, arr);
+    }
+    return arr;
+  },
+  delete: (key, id) => {
+    const arr = db.getArray(key);
+    const filtered = arr.filter(x => x.id !== id);
+    db.set(key, filtered);
+    return filtered;
+  }
+};
+
+// ==================== APP LOGIC ====================
+const app = {
+  currentUser: null,
+  currentClientId: null,
+  
+  init: () => {
+    const savedUser = db.get('currentUser');
+    if (savedUser) {
+      app.currentUser = savedUser;      app.navigation.toDashboard();
+    } else {
+      app.navigation.show('auth-screen');
+    }
+  },
+  
+  auth: {
+    login: () => {
+      const name = document.getElementById('auth-name').value.trim();
+      const email = document.getElementById('auth-email').value.trim();
+      const role = document.getElementById('auth-role').value;
+      
+      if (!name || !email) {
+        alert('Please fill all fields');
+        return;
+      }
+      
+      // Check if user exists
+      let users = db.getArray('users');
+      let user = users.find(u => u.email === email);
+      
+      if (!user) {
+        user = {
+          id: Date.now(),
+          name,
+          email,
+          role,
+          createdAt: new Date().toISOString()
+        };
+        db.push('users', user);
+      }
+      
+      app.currentUser = user;
+      db.set('currentUser', user);
+      app.navigation.toDashboard();
+    },
+    
+    logout: () => {
+      app.currentUser = null;
+      db.set('currentUser', null);
+      app.navigation.show('auth-screen');
+    }
+  },
+  
+  navigation: {
+    show: (screenId) => {
+      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+      document.getElementById(screenId).classList.add('active');
+      
+      // Update nav active state      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      event?.target?.classList.add('active');
+      
+      // Refresh data
+      if (screenId === 'coach-dashboard') app.clients.renderList();
+      if (screenId === 'client-dashboard') app.client.renderDashboard();
+    },
+    
+    toDashboard: () => {
+      if (app.currentUser.role === 'coach') {
+        app.navigation.show('coach-dashboard');
+        app.clients.renderList();
+      } else {
+        app.navigation.show('client-dashboard');
+        app.client.renderDashboard();
+      }
+    }
+  },
+  
+  clients: {
+    renderList: () => {
+      const clients = db.getArray('clients').filter(c => c.coachId === app.currentUser.id);
+      document.getElementById('coach-total-clients').textContent = clients.length;
+      document.getElementById('clients-count').textContent = clients.length;
+      
+      const listEl = document.getElementById('clients-list');
+      if (clients.length === 0) {
+        listEl.innerHTML = '<p class="text-gray-400 text-center py-8">No clients yet. Add your first client!</p>';
+        return;
+      }
+      
+      listEl.innerHTML = clients.map(c => `
+        <div class="client-card animate-slide-up" onclick="app.clients.showDetails(${c.id})">
+          <div class="flex justify-between items-start">
+            <div class="flex-1">
+              <div class="font-bold text-lg">${c.name}</div>
+              <div class="text-sm text-gray-400">${c.email}</div>
+              <div class="flex gap-2 mt-2">
+                <span class="badge badge-success">${c.goal.replace('_', ' ')}</span>
+                <span class="badge badge-warning">${c.weight} kg</span>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right text-gray-400"></i>
+          </div>
+        </div>
+      `).join('');
+    },
+    
+    showAddModal: () => {
+      document.getElementById('add-client-modal').classList.add('active');    },
+    
+    hideAddModal: () => {
+      document.getElementById('add-client-modal').classList.remove('active');
+    },
+    
+    add: () => {
+      const client = {
+        id: Date.now(),
+        coachId: app.currentUser.id,
+        name: document.getElementById('new-client-name').value,
+        email: document.getElementById('new-client-email').value,
+        age: parseInt(document.getElementById('new-client-age').value),
+        weight: parseFloat(document.getElementById('new-client-weight').value),
+        height: parseFloat(document.getElementById('new-client-height').value),
+        goal: document.getElementById('new-client-goal').value,
+        healthIssues: document.getElementById('new-client-issues').value,
+        bmi: app.utils.calculateBMI(
+          parseFloat(document.getElementById('new-client-weight').value),
+          parseFloat(document.getElementById('new-client-height').value)
+        ),
+        createdAt: new Date().toISOString(),
+        workouts: []
+      };
+      
+      db.push('clients', client);
+      app.clients.hideAddModal();
+      app.clients.renderList();
+      
+      // Reset form
+      document.querySelector('#add-client-modal form').reset();
+      
+      alert('Client added successfully!');
+    },
+    
+    showDetails: (clientId) => {
+      app.currentClientId = clientId;
+      const client = db.getArray('clients').find(c => c.id === clientId);
+      
+      const content = document.getElementById('client-details-content');
+      content.innerHTML = `
+        <div class="space-y-4">
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <div class="text-sm text-gray-400">Name</div>
+              <div class="font-bold">${client.name}</div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Email</div>
+              <div class="font-bold">${client.email}</div>            </div>
+            <div>
+              <div class="text-sm text-gray-400">Age</div>
+              <div class="font-bold">${client.age} years</div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">BMI</div>
+              <div class="font-bold text-emerald-400">${client.bmi}</div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Weight</div>
+              <div class="font-bold">${client.weight} kg</div>
+            </div>
+            <div>
+              <div class="text-sm text-gray-400">Height</div>
+              <div class="font-bold">${client.height} cm</div>
+            </div>
+          </div>
+          
+          <div>
+            <div class="text-sm text-gray-400 mb-1">Goal</div>
+            <div class="badge badge-success">${client.goal.replace('_', ' ').toUpperCase()}</div>
+          </div>
+          
+          ${client.healthIssues ? `
+            <div>
+              <div class="text-sm text-gray-400 mb-1">Health Issues</div>
+              <div class="text-gray-300">${client.healthIssues}</div>
+            </div>
+          ` : ''}
+          
+          <div>
+            <div class="text-sm text-gray-400 mb-2">Total Workouts</div>
+            <div class="text-2xl font-bold text-blue-400">${client.workouts?.length || 0}</div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('client-details-modal').classList.add('active');
+    },
+    
+    hideDetailsModal: () => {
+      document.getElementById('client-details-modal').classList.remove('active');
+      app.currentClientId = null;
+    },
+    
+    deleteCurrent: () => {
+      if (!confirm('Are you sure you want to delete this client? All data will be lost.')) {
+        return;
+      }      
+      db.delete('clients', app.currentClientId);
+      app.clients.hideDetailsModal();
+      app.clients.renderList();
+      alert('Client deleted successfully');
+    }
+  },
+  
+  client: {
+    renderDashboard: () => {
+      const client = db.getArray('clients').find(c => c.id === app.currentUser.id);
+      if (!client) return;
+      
+      document.getElementById('client-name').textContent = client.name;
+      document.getElementById('client-goal').textContent = `Goal: ${client.goal.replace('_', ' ')}`;
+      document.getElementById('client-bmi').textContent = client.bmi;
+      document.getElementById('client-weight').textContent = `${client.weight} kg`;
+      document.getElementById('client-height').textContent = `${client.height} cm`;
+      document.getElementById('client-age').textContent = client.age;
+      
+      // Recent workouts
+      const workouts = client.workouts?.slice(-5).reverse() || [];
+      const workoutsEl = document.getElementById('client-recent-workouts');
+      
+      if (workouts.length === 0) {
+        workoutsEl.innerHTML = '<p class="text-gray-400 text-center py-4">No workouts yet</p>';
+      } else {
+        workoutsEl.innerHTML = workouts.map(w => `
+          <div class="workout-item">
+            <div class="font-semibold text-emerald-300">${w.exercise}</div>
+            <div class="text-sm text-gray-400">${w.sets} sets × ${w.reps} reps • ${w.weight} kg</div>
+            <div class="text-xs text-gray-500">${new Date(w.date).toLocaleDateString()}</div>
+          </div>
+        `).join('');
+      }
+    }
+  },
+  
+  utils: {
+    calculateBMI: (weight, height) => {
+      const h = height / 100;
+      return (weight / (h * h)).toFixed(1);
+    }
+  }
+};
+
+// Initialize app
+app.init();
+</script>
+</body>
+</html>
