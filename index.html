@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>DevFit Coach Pro - Devidas Patil</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta name="theme-color" content="#0f172a">
+  <link rel="manifest" href='data:application/json;base64,eyJuYW1lIjoiRGV2Rml0IENvYWNoIFBybyIsInNob3J0X25hbWUiOiJEZXZGaXQiLCJzdGFydF91cmwiOiIuIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBmMTcyYSIsInRoZW1lX2NvbG9yIjoiIzEwYjk4MSJ9'>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+      color: #f8fafc; 
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      min-height: 100vh;
+      transition: all 0.3s ease;
+    }
+    body.light-mode {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      color: #1e293b;
+    }
+    .screen { display: none; animation: fadeIn 0.5s ease; }
+    .screen.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes confetti {
+      0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+    }
+    .btn { 
+      padding: 16px; border-radius: 16px; font-weight: 700; width: 100%; 
+      margin-bottom: 12px; cursor: pointer; border: none; color: white; 
+      font-size: 16px; transition: all 0.3s ease; position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    }
+    .btn:active { transform: scale(0.95); }
+    .btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.4); }    .btn-green { background: linear-gradient(135deg, #10b981, #059669); }
+    .btn-blue { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .btn-purple { background: linear-gradient(135deg, #a855f7, #7c3aed); }
+    .btn-orange { background: linear-gradient(135deg, #f97316, #ea580c); }
+    .btn-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+    .btn-gold { background: linear-gradient(135deg, #fbbf24, #f59e0b); }
+    .input-box { 
+      width: 100%; padding: 16px; margin-bottom: 12px; 
+      background: rgba(30, 41, 59, 0.8); 
+      border: 2px solid #334155; color: white; 
+      border-radius: 12px; box-sizing: border-box; 
+      font-size: 16px; transition: all 0.3s;
+      backdrop-filter: blur(10px);
+    }
+    body.light-mode .input-box {
+      background: rgba(255, 255, 255, 0.9);
+      color: #1e293b;
+      border-color: #cbd5e1;
+    }
+    .input-box:focus { 
+      border-color: #10b981; 
+      outline: none; 
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    .card { 
+      background: rgba(30, 41, 59, 0.9); 
+      padding: 24px; border-radius: 20px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4); 
+      border: 1px solid rgba(51, 65, 85, 0.5); 
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+      animation: slideUp 0.5s ease;
+    }
+    body.light-mode .card {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(203, 213, 225, 0.5);
+    }
+    .plan-item { 
+      background: rgba(30, 41, 59, 0.8); 
+      padding: 18px; border-radius: 14px; 
+      margin-bottom: 12px; 
+      border-left: 5px solid #10b981;
+      transition: all 0.3s;
+      animation: slideUp 0.5s ease;
+    }
+    body.light-mode .plan-item {
+      background: rgba(241, 245, 249, 0.9);
+    }
+    .plan-item:hover {       transform: translateX(5px); 
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+    .goal-btn { 
+      background: rgba(30, 41, 59, 0.8); 
+      padding: 20px; border-radius: 16px; 
+      margin: 10px 0; cursor: pointer; 
+      border: 3px solid #334155; 
+      transition: all 0.3s; 
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+    }
+    body.light-mode .goal-btn {
+      background: rgba(241, 245, 249, 0.9);
+      border-color: #cbd5e1;
+    }
+    .goal-btn.selected { 
+      border-color: #10b981; 
+      background: rgba(6, 78, 59, 0.9);
+      transform: scale(1.05);
+      box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+    }
+    .bmi-box { 
+      background: linear-gradient(135deg, #10b981, #059669); 
+      padding: 24px; border-radius: 16px; 
+      text-align: center; margin: 20px 0;
+      box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+      animation: pulse 2s infinite;
+    }
+    .streak-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #f97316, #ea580c);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-weight: bold;
+      animation: pulse 1.5s infinite;
+    }
+    .xp-bar {
+      background: rgba(51, 65, 85, 0.8);
+      height: 12px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+    .xp-fill {
+      background: linear-gradient(90deg, #10b981, #3b82f6);
+      height: 100%;      transition: width 0.5s ease;
+      border-radius: 10px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 8px 16px;
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: bold;
+      margin: 4px;
+      animation: slideUp 0.5s ease;
+    }
+    .badge.locked {
+      background: #475569;
+      opacity: 0.5;
+    }
+    .voice-btn {
+      background: linear-gradient(135deg, #ec4899, #db2777);
+      animation: pulse 1.5s infinite;
+    }
+    .confetti {
+      position: fixed;
+      width: 10px;
+      height: 10px;
+      background: #10b981;
+      animation: confetti 3s ease-out;
+      z-index: 9999;
+      pointer-events: none;
+    }
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(30, 41, 59, 0.9);
+      border: 2px solid #334155;
+      color: white;
+      padding: 12px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 20px;
+      z-index: 1000;
+      transition: all 0.3s;
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }    .theme-toggle:hover {
+      transform: rotate(180deg);
+      background: #10b981;
+    }
+    .floating {
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+  </style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle Theme">🌓</button>
+
+<div id="app" class="max-w-md mx-auto p-4 pt-20">
+  <!-- Dynamic Content -->
+</div>
+
+<script>
+// --- DATABASE ---
+let user = JSON.parse(localStorage.getItem('devfit_user') || 'null');
+let plan = JSON.parse(localStorage.getItem('devfit_plan') || 'null');
+let logs = JSON.parse(localStorage.getItem('devfit_logs') || '[]');
+let stats = JSON.parse(localStorage.getItem('devfit_stats') || '{"xp":0,"level":1,"streak":0,"badges":[],"lastWorkout":null}');
+
+// --- AI PLANS (Indian) ---
+const AI_PLANS = {
+  weight_loss: {
+    title: "🔥 वजन कमी करणे",
+    workout: [
+      { day: "सोमवार", ex: "तेज चालणे 30 मि, सायकलिंग 20 मि, स्ट्रेचिंग 10 मि" },
+      { day: "मंगळवार", ex: "स्क्वॅट्स 3x15, पुश-अप्स 3x12, प्लॅंक 3x30sec, बर्पीज 3x10" },
+      { day: "बुधवार", ex: "जंप स्क्वॅट्स 4x15, माउंटन क्लायमर्स 4x30sec, रस्सी उड्या 10 मि" },
+      { day: "गुरुवार", ex: "आराम / हलकी चाल / योगा / प्राणायाम" },
+      { day: "शुक्रवार", ex: "लंजेस 3x12, डम्बल रो 3x12, बायसेप कर्ल्स 3x15, क्रंचेस 3x20" },
+      { day: "शनिवार", ex: "धावणे 40 मि / पोहणे 20 मि / सायकलिंग 30 मि" },
+      { day: "रविवार", ex: "हलके स्ट्रेचिंग / चालणे / पूर्ण आराम" }
+    ],
+    diet: {
+      cal: "1200-1500 kcal/दिवस",
+      meals: [
+        { t: "सकाळी 7-8", f: "1 वाटी ओट्स + दूध, 1 कप ग्रीन टी, 2 उकडलेली अंडी" },
+        { t: "सकाळी 11", f: "1 सफरचंद/पपई, 8-10 बदाम" },
+        { t: "दुपारी 1-2", f: "1 भाकरी (ज्वारी), 1 वाटी डाळ, 1 वाटी भाजी, सॅलड, दही" },
+        { t: "संध्याकाळी 5", f: "1 कप ग्रीन टी, 1 वाटी भाजलेले चणे" },
+        { t: "रात्री 8", f: "1 भाकरी, 1 वाटी पालेभाजी, सॅलड, 1 वाटी मूग डाळ" },
+        { t: "झोपण्यापूर्वी", f: "1 ग्लास कोमट पाणी + लिंबू" }      ],
+      tips: ["3-4L पाणी", "साखर-मैदा टाळा", "रात्री 8 नंतर नाही", "प्रत्येक 3 तासांनी खा"]
+    }
+  },
+  muscle_gain: {
+    title: "💪 स्नायू वाढवणे",
+    workout: [
+      { day: "सोमवार (Chest)", ex: "बेंच प्रेस 4x10, इंक्लाइन प्रेस 4x10, फ्लाय 3x12, डिप्स 3x12" },
+      { day: "मंगळवार (Back)", ex: "पुल-अप्स 4x10, बार्बेल रो 4x10, पुलडाउन 3x12, कर्ल्स 3x12" },
+      { day: "बुधवार (Legs)", ex: "स्क्वॅट्स 4x10, लेग प्रेस 4x12, लंजेस 3x12, कॉफ रेजेस 4x15" },
+      { day: "गुरुवार", ex: "आराम व रिकव्हरी" },
+      { day: "शुक्रवार (Shoulders)", ex: "मिलिटरी प्रेस 4x10, लेटरल रेजेस 3x12, श्रग्स 3x15" },
+      { day: "शनिवार (Full Body)", ex: "डेडलिफ्ट्स 4x8, बेंच 3x10, स्क्वॅट्स 3x10" },
+      { day: "रविवार", ex: "पूर्ण आराम" }
+    ],
+    diet: {
+      cal: "2500-3000 kcal/दिवस",
+      meals: [
+        { t: "सकाळी 7", f: "4 अंडी पांढरा + 2 संपूर्ण, 2 पराठे, दूध + केळी" },
+        { t: "सकाळी 10", f: "प्रोटीन शेक, काजू-बदाम" },
+        { t: "दुपारी 1", f: "4 भाकरी, 200g चिकन/पनीर, 1.5 वाटी डाळ, भात, सॅलड" },
+        { t: "वर्कआउटपूर्वी", f: "2 केळी, ब्लॅक कॉफी" },
+        { t: "वर्कआउटनंतर", f: "प्रोटीन शेक, 4 अंडी पांढरा" },
+        { t: "रात्री 9", f: "3 भाकरी, 200g मासे/पनीर, डाळ, भाजी" },
+        { t: "झोपण्यापूर्वी", f: "दूध + पीनट बटर, 10 बदाम" }
+      ],
+      tips: ["प्रत्येक 2-3 तासांनी खा", "2g प्रोटीन/kg", "4L पाणी", "8 तास झोप"]
+    }
+  },
+  maintenance: {
+    title: "⚡ फिटनेस मेंटेन",
+    workout: [
+      { day: "सोमवार", ex: "पुश-अप्स 3x15, डम्बल प्रेस 3x12, रो 3x12" },
+      { day: "मंगळवार", ex: "स्क्वॅट्स 3x15, लंजेस 3x12, कॉफ रेजेस 3x15" },
+      { day: "बुधवार", ex: "30 मि जॉगिंग, सायकलिंग 20 मि" },
+      { day: "गुरुवार", ex: "योगा / सूर्य नमस्कार" },
+      { day: "शुक्रवार", ex: "प्लॅंक 3x45sec, क्रंचेस 3x20, लेग रेजेस 3x15" },
+      { day: "शनिवार", ex: "खेळ (क्रिकेट/बॅडमिंटन)" },
+      { day: "रविवार", ex: "पूर्ण आराम" }
+    ],
+    diet: {
+      cal: "1800-2200 kcal/दिवस",
+      meals: [
+        { t: "सकाळी 7-8", f: "1 वाटी पोहे/इडली, चहा/दूध, फruits" },
+        { t: "सकाळी 11", f: "1 केळी/सफरचंद, भुजलेले चणे" },
+        { t: "दुपारी 1-2", f: "2 भाकरी, डाळ, भाजी, सॅलड, दही" },
+        { t: "संध्याकाळी 5", f: "चहा/कॉफी, 2 बिस्किटे" },
+        { t: "रात्री 8-9", f: "2 भाकरी, डाळ, भाजी, सॅलड" },
+        { t: "झोपण्यापूर्वी", f: "1 ग्लास दूध" }
+      ],      tips: ["संतुलित आहार", "नियमित व्यायाम", "8 तास झोप", "3L पाणी"]
+    }
+  }
+};
+
+// --- VOICE COACH ---
+const voiceCoach = {
+  speak: (text) => {
+    if ('speechSynthesis' in window) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'en-IN';
+      utterance.rate = 0.9;
+      speechSynthesis.speak(utterance);
+    }
+  },
+  startWorkout: () => {
+    voiceCoach.speak("Ready to crush your workout! Let's go!");
+  },
+  countdown: (sec) => {
+    voiceCoach.speak(`${sec}... ${sec-1}... ${sec-2}... Go!`);
+  },
+  motivate: () => {
+    const phrases = [
+      "You're doing great! Keep pushing!",
+      "Feel the burn! You got this!",
+      "Almost there! Don't give up!",
+      "Stronger every rep!",
+      "Beast mode activated!"
+    ];
+    const random = phrases[Math.floor(Math.random() * phrases.length)];
+    voiceCoach.speak(random);
+  }
+};
+
+// --- GAMIFICATION ---
+function addXP(amount) {
+  stats.xp += amount;
+  const xpNeeded = stats.level * 100;
+  if (stats.xp >= xpNeeded) {
+    stats.level++;
+    stats.xp = 0;
+    showConfetti();
+    alert(`🎉 Level Up! You're now Level ${stats.level}!`);
+    voiceCoach.speak(`Congratulations! You reached level ${stats.level}!`);
+  }
+  checkBadges();
+  saveStats();
+}
+
+function checkBadges() {  const newBadges = [];
+  
+  if (logs.length >= 1 && !stats.badges.includes('First Step')) {
+    newBadges.push('First Step');
+  }
+  if (logs.length >= 10 && !stats.badges.includes('Consistent')) {
+    newBadges.push('Consistent');
+  }
+  if (logs.length >= 50 && !stats.badges.includes('Dedicated')) {
+    newBadges.push('Dedicated');
+  }
+  if (stats.streak >= 7 && !stats.badges.includes('Week Warrior')) {
+    newBadges.push('Week Warrior');
+  }
+  if (stats.streak >= 30 && !stats.badges.includes('Monthly Master')) {
+    newBadges.push('Monthly Master');
+  }
+  
+  if (newBadges.length > 0) {
+    stats.badges.push(...newBadges);
+    showConfetti();
+    alert(`🏆 New Badges Unlocked: ${newBadges.join(', ')}!`);
+  }
+}
+
+function updateStreak() {
+  const today = new Date().toDateString();
+  if (stats.lastWorkout !== today) {
+    const yesterday = new Date(Date.now() - 86400000).toDateString();
+    if (stats.lastWorkout === yesterday) {
+      stats.streak++;
+    } else if (stats.lastWorkout !== today) {
+      stats.streak = 1;
+    }
+    stats.lastWorkout = today;
+    saveStats();
+  }
+}
+
+function showConfetti() {
+  const colors = ['#10b981', '#3b82f6', '#f97316', '#ec4899', '#a855f7'];
+  for (let i = 0; i < 50; i++) {
+    setTimeout(() => {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * 100 + 'vw';
+      confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+      confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+      document.body.appendChild(confetti);
+      setTimeout(() => confetti.remove(), 4000);    }, i * 50);
+  }
+}
+
+function saveStats() {
+  localStorage.setItem('devfit_stats', JSON.stringify(stats));
+}
+
+// --- THEME TOGGLE ---
+function toggleTheme() {
+  document.body.classList.toggle('light-mode');
+  const isLight = document.body.classList.contains('light-mode');
+  localStorage.setItem('devfit_theme', isLight ? 'light' : 'dark');
+}
+
+// Load saved theme
+const savedTheme = localStorage.getItem('devfit_theme');
+if (savedTheme === 'light') {
+  document.body.classList.add('light-mode');
+}
+
+// --- APP LOGIC ---
+function render() {
+  const app = document.getElementById('app');
+  if (!user) return showOnboarding(app);
+  if (!plan) return showGoalSelect(app);
+  return showDashboard(app);
+}
+
+function showOnboarding(app) {
+  app.innerHTML = `
+    <div class="card mt-8 text-center floating">
+      <h1 class="text-4xl font-bold text-emerald-400 mb-3">🏋️ DevFit Coach Pro</h1>
+      <p class="text-gray-400 mb-6 text-lg">Devidas Patil – Advanced AI Fitness</p>
+      <input id="u-name" class="input-box" placeholder="👤 तुमचे नाव टाका">
+      <button onclick="saveUser()" class="btn btn-green text-lg">🚀 सुरुवात करा</button>
+      <p class="text-xs text-gray-500 mt-4">No login required. Instant start!</p>
+    </div>
+  `;
+}
+
+function saveUser() {
+  const name = document.getElementById('u-name').value.trim();
+  if (!name) return alert("कृपया नाव टाका");
+  user = { name, createdAt: new Date().toISOString() };
+  localStorage.setItem('devfit_user', JSON.stringify(user));
+  render();
+}
+
+function showGoalSelect(app) {  app.innerHTML = `
+    <div class="card mt-4">
+      <h2 class="text-2xl font-bold mb-4 text-emerald-400">👋 नमस्कार ${user.name}!</h2>
+      <p class="text-gray-400 mb-4">तुमचे ध्येय निवडा. AI तुमचा personalized plan तयार करेल.</p>
+      
+      <input id="u-age" class="input-box" type="number" placeholder="🎂 वय (years)">
+      <div class="flex gap-2 mb-4">
+        <input id="u-weight" class="input-box" type="number" placeholder="⚖️ वजन (kg)">
+        <input id="u-height" class="input-box" type="number" placeholder="📏 उंची (cm)">
+      </div>
+
+      <h3 class="font-bold mb-3">🎯 तुमचे ध्येय:</h3>
+      <div class="goal-btn" onclick="selectGoal('weight_loss', this)">
+        <div class="font-bold text-orange-400 text-lg">🔥 वजन कमी करणे</div>
+        <div class="text-sm text-gray-400">Fat कमी करा आणि lean व्हा</div>
+      </div>
+      <div class="goal-btn" onclick="selectGoal('muscle_gain', this)">
+        <div class="font-bold text-blue-400 text-lg">💪 स्नायू वाढवणे</div>
+        <div class="text-sm text-gray-400">Muscle आणि strength वाढवा</div>
+      </div>
+      <div class="goal-btn" onclick="selectGoal('maintenance', this)">
+        <div class="font-bold text-green-400 text-lg">⚡ फिटनेस मेंटेन</div>
+        <div class="text-sm text-gray-400">स्वस्थ आणि तंदुरुस्त राहा</div>
+      </div>
+      <input type="hidden" id="sel-goal">
+      
+      <input id="u-issues" class="input-box mt-4" placeholder="🏥 आरोग्य समस्या (Optional)">
+      <button onclick="generatePlan()" class="btn btn-purple text-lg mt-2">✨ माझा AI Plan तयार करा</button>
+    </div>
+  `;
+}
+
+function selectGoal(goal, el) {
+  document.querySelectorAll('.goal-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('sel-goal').value = goal;
+}
+
+function generatePlan() {
+  const age = document.getElementById('u-age').value;
+  const weight = document.getElementById('u-weight').value;
+  const height = document.getElementById('u-height').value;
+  const goal = document.getElementById('sel-goal').value;
+  const issues = document.getElementById('u-issues').value.trim() || "None";
+
+  if (!age || !weight || !height || !goal) return alert("कृपया सर्व माहिती भरा आणि ध्येय निवडा");
+
+  const hM = height / 100;
+  const bmi = (weight / (hM * hM)).toFixed(1);
+  const cat = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "Obese";
+  plan = {
+    userId: user.name,
+    age: +age, weight: +weight, height: +height,
+    bmi, bmiCat: cat, goal, issues,
+    workout: AI_PLANS[goal].workout,
+    diet: AI_PLANS[goal].diet,
+    generatedAt: new Date().toISOString()
+  };
+
+  localStorage.setItem('devfit_plan', JSON.stringify(plan));
+  showConfetti();
+  alert(`✅ प्लॅन तयार!\nBMI: ${bmi} (${cat})\nध्याय: ${AI_PLANS[goal].title}`);
+  render();
+}
+
+function showDashboard(app) {
+  const xpNeeded = stats.level * 100;
+  const xpPercent = (stats.xp / xpNeeded) * 100;
+  
+  app.innerHTML = `
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <h2 class="text-xl font-bold text-emerald-400">💪 ${user.name}</h2>
+        <div class="text-sm text-gray-400">Level ${stats.level}</div>
+      </div>
+      <div class="flex gap-2">
+        ${stats.streak > 0 ? `<div class="streak-badge">🔥 ${stats.streak}</div>` : ''}
+        <button onclick="resetApp()" class="text-red-400 text-sm px-3 py-1 bg-slate-800 rounded">🔄</button>
+      </div>
+    </div>
+
+    <div class="xp-bar">
+      <div class="xp-fill" style="width: ${xpPercent}%"></div>
+    </div>
+    <div class="text-xs text-gray-400 mb-4">XP: ${stats.xp}/${xpNeeded}</div>
+
+    <div class="bmi-box">
+      <div class="text-sm opacity-90">Your BMI</div>
+      <div class="text-5xl font-bold">${plan.bmi}</div>
+      <div class="text-sm mt-2 font-semibold">${plan.bmiCat}</div>
+      <div class="text-xs mt-2 opacity-80">${AI_PLANS[plan.goal].title}</div>
+    </div>
+
+    <div class="flex gap-2 mb-4">
+      <button onclick="switchTab('workout')" id="btn-workout" class="btn btn-blue flex-1 py-4 text-lg">🏋️ Workout</button>
+      <button onclick="switchTab('diet')" id="btn-diet" class="btn btn-orange flex-1 py-4 text-lg">🥗 Diet</button>
+    </div>
+
+    <div id="tab-workout">      <h3 class="font-bold mb-3 text-lg flex items-center gap-2">
+        📅 Weekly Plan
+        <button onclick="voiceCoach.startWorkout()" class="voice-btn btn py-2 px-4 text-sm w-auto">🎤 Voice</button>
+      </h3>
+      ${plan.workout.map(d => `
+        <div class="plan-item">
+          <div class="font-bold text-emerald-300 text-lg mb-1">${d.day}</div>
+          <div class="text-sm text-gray-300">${d.ex}</div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div id="tab-diet" class="hidden">
+      <div class="card mb-4 text-center">
+        <div class="text-sm text-gray-400">Daily Calories</div>
+        <div class="text-3xl font-bold text-orange-400">${plan.diet.cal}</div>
+      </div>
+      <h3 class="font-bold mb-3 text-lg">️ Meal Plan</h3>
+      ${plan.diet.meals.map(m => `
+        <div class="plan-item" style="border-left-color:#f97316;">
+          <div class="font-bold text-orange-300">${m.t}</div>
+          <div class="text-sm text-gray-300 mt-1">${m.f}</div>
+        </div>
+      `).join('')}
+      <div class="card mt-4">
+        <h4 class="font-bold mb-2 text-emerald-400">💡 Pro Tips</h4>
+        <ul class="text-sm space-y-2">${plan.diet.tips.map(t => `<li class="text-gray-300 flex items-center gap-2">✓ ${t}</li>`).join('')}</ul>
+      </div>
+    </div>
+
+    <div class="flex gap-2 mt-4">
+      <button onclick="showLogForm()" class="btn btn-green flex-1">📝 Log Workout</button>
+      <button onclick="showBadges()" class="btn btn-gold flex-1">🏆 Badges</button>
+    </div>
+
+    <div class="mt-6">
+      <h3 class="font-bold mb-3 flex items-center gap-2">
+        📊 Recent Logs 
+        <span class="text-sm text-gray-400">(${logs.length})</span>
+      </h3>
+      <div id="logs-list">${logs.length ? logs.slice(-5).reverse().map(l => `
+        <div class="bg-slate-800 p-4 rounded-xl mb-3 flex justify-between items-center">
+          <div>
+            <div class="font-semibold text-emerald-300 text-lg">${l.ex}</div>
+            <div class="text-sm text-gray-400">${l.sets} sets × ${l.reps} reps • ${l.wt} kg</div>
+          </div>
+          <div class="text-xs text-gray-500">${new Date(l.date).toLocaleDateString()}</div>
+        </div>
+      `).join('') : '<p class="text-gray-500 text-center py-8">अजून कोणतेही workout नाही. सुरुवात करा!</p>'}</div>
+    </div>  `;
+  switchTab('workout');
+}
+
+function switchTab(tab) {
+  document.getElementById('tab-workout').classList.add('hidden');
+  document.getElementById('tab-diet').classList.add('hidden');
+  document.getElementById(`tab-${tab}`).classList.remove('hidden');
+  
+  document.getElementById('btn-workout').className = `btn flex-1 py-4 text-lg ${tab === 'workout' ? 'btn-blue' : 'bg-slate-700 text-gray-300'}`;
+  document.getElementById('btn-diet').className = `btn flex-1 py-4 text-lg ${tab === 'diet' ? 'btn-orange' : 'bg-slate-700 text-gray-300'}`;
+}
+
+function showLogForm() {
+  const app = document.getElementById('app');
+  app.innerHTML = `
+    <div class="card mt-10">
+      <h2 class="text-2xl font-bold mb-4 flex items-center gap-2">📝 Log Workout 
+        <button onclick="voiceCoach.motivate()" class="voice-btn btn py-2 px-4 text-sm w-auto ml-auto">🎤 Motivate</button>
+      </h2>
+      <input id="log-ex" class="input-box" placeholder="Exercise Name (e.g., Push-ups)">
+      <div class="flex gap-2 mb-4">
+        <input id="log-sets" class="input-box" type="number" placeholder="Sets">
+        <input id="log-reps" class="input-box" type="number" placeholder="Reps">
+        <input id="log-wt" class="input-box" type="number" placeholder="Kg">
+      </div>
+      <button onclick="saveLog()" class="btn btn-green text-lg">💾 Save +50 XP</button>
+      <button onclick="render()" class="btn btn-blue mt-2">← Back</button>
+    </div>
+  `;
+}
+
+function saveLog() {
+  const ex = document.getElementById('log-ex').value.trim();
+  const sets = document.getElementById('log-sets').value;
+  const reps = document.getElementById('log-reps').value;
+  const wt = document.getElementById('log-wt').value || '0';
+  if (!ex || !sets || !reps) return alert("Exercise, Sets & Reps आवश्यक आहेत.");
+  
+  logs.push({ ex, sets, reps, wt, date: new Date().toISOString() });
+  localStorage.setItem('devfit_logs', JSON.stringify(logs));
+  
+  updateStreak();
+  addXP(50);
+  showConfetti();
+  
+  alert("✅ Workout logged! +50 XP");
+  render();
+}
+function showBadges() {
+  const app = document.getElementById('app');
+  const allBadges = ['First Step', 'Consistent', 'Dedicated', 'Week Warrior', 'Monthly Master', 'Beast Mode', 'Early Bird', 'Night Owl'];
+  
+  app.innerHTML = `
+    <div class="card mt-10">
+      <h2 class="text-2xl font-bold mb-4 text-center">🏆 Your Badges</h2>
+      <div class="flex flex-wrap justify-center mb-6">
+        ${stats.badges.length ? stats.badges.map(b => `<span class="badge">${b}</span>`).join('') : '<p class="text-gray-400 text-center w-full">No badges yet. Keep working out!</p>'}
+      </div>
+      <h3 class="font-bold mb-3">Upcoming Badges:</h3>
+      <div class="flex flex-wrap justify-center">
+        ${allBadges.filter(b => !stats.badges.includes(b)).map(b => `<span class="badge locked">🔒 ${b}</span>`).join('')}
+      </div>
+      <button onclick="render()" class="btn btn-blue mt-6">← Back</button>
+    </div>
+  `;
+}
+
+function resetApp() {
+  if (confirm("सर्व data delete होईल. खात्री आहे?")) {
+    localStorage.clear();
+    location.reload();
+  }
+}
+
+// Initialize
+render();
+</script>
+
+</body>
+</html>
