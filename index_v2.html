@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="mr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Swasath Sadi — Health information (MAR)</title>
+  <meta name="description" content="Health tips and simple guidance in Marathi.">
+  <meta property="og:title" content="Swasath Sadi">
+  <meta property="og:description" content="Health tips and simple guidance in Marathi.">
+  <meta property="og:type" content="website">
+  <meta name="theme-color" content="#0d6efd">
+  <link rel="icon" href="/favicon.ico">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="header" role="banner">
+    <a href="/" class="brand" aria-label="Home - Swasath Sadi">स्वास्थ् साधी</a>
+    <nav role="navigation" aria-label="Main menu">
+      <ul class="nav">
+        <li><a href="#services">Services</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main role="main" class="container">
+    <section class="hero card">
+      <h1>आपले आरोग्य, सोप्या मार्गदर्शकाशी</h1>
+      <p class="muted">मराठीत स्वास्थ्य माहिती आणि सोप्या उपाययोजना.</p>
+      <img src="/images/hero-800.webp" srcset="/images/hero-400.webp 400w, /images/hero-800.webp 800w" sizes="(max-width:600px) 100vw, 800px" alt="Health information" loading="lazy">
+    </section>
+
+    <div class="grid">
+      <section id="services" class="card">
+        <h2>सेवा</h2>
+        <p>आपण येथे विविध आरोग्य टिप्स, प्राथमिक उपचार मार्गदर्शन आणि स्थानिक सेवा शोधू शकता.</p>
+      </section>
+
+      <aside class="card">
+        <h3>Important Links</h3>
+        <ul>
+          <li><a href="#">Health Department</a></li>
+          <li><a href="#">Local Clinics</a></li>
+        </ul>
+      </aside>
+    </div>
+
+    <section id="contact" class="card">
+      <h2>Contact</h2>
+      <form action="https://formspree.io/f/your-id" method="POST" aria-label="Contact form">
+        <label for="name">Name</label>
+        <input id="name" name="name" required>
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required>
+        <label for="message">Message</label>
+        <textarea id="message" name="message" required></textarea>
+        <button type="submit">Send</button>
+      </form>
+    </section>
+
+  </main>
+
+  <footer role="contentinfo" class="container card">
+    <p>© <span id="year"></span> Swasath Sadi</p>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(()=>{/* service worker registration failed */});
+    }
+  </script>
+</body>
+</html>
